@@ -6,7 +6,7 @@ import { LEVELS, getCurrentLevel } from "../utils/levels";
 
 function ProfileScreen({ go }) {
   const [showPassword, setShowPassword] = useState(false);
-  const { user } = useUser(); // Используем контекст пользователя, если нужно
+  const { user } = useUser(); // Используем контекст пользователя
   const currentLevel = getCurrentLevel(LEVELS, user.experience);
 
   const [savedProfile, setSavedProfile] = useState({

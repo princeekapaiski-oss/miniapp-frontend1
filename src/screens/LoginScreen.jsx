@@ -59,7 +59,7 @@ function LoginScreen({ go }) {
 
     try {
       // Отправка запроса на сервер для авторизации
-      const response = await fetch("https://miniapp-backend-oio7.onrender.com/auth/telegram", {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/telegram`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

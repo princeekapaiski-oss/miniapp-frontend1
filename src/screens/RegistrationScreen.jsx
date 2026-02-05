@@ -21,6 +21,7 @@ function RegistrationScreen({ go }) {
   const [touched, setTouched] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
+  // Функции для изменения значений в форме
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -29,6 +30,7 @@ function RegistrationScreen({ go }) {
     setTouched((prev) => ({ ...prev, [field]: true }));
   };
 
+  // Функция для валидации формы
   const validateForm = (data) => {
     const newErrors = {};
 
@@ -53,18 +55,19 @@ function RegistrationScreen({ go }) {
   }, [form]);
 
   const isValid = Object.keys(errors).length === 0;
-  const isFilled =
-    form.firstName && form.lastName && form.email && form.password;
-
+  const isFilled = form.firstName && form.lastName && form.email && form.password;
   const canSubmit = isValid && isFilled;
 
   // Обработчик отправки формы
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Здесь делаем запрос к backend для регистрации
+    // Если форма имеет ошибки, не отправлять запрос
+    if (!canSubmit) return;
+
     try {
-      const response = await fetch('https://miniapp-backend-oio7.onrender.com/auth/telegram', {
+      // Отправка запроса на сервер для регистрации
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/telegram`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +86,7 @@ function RegistrationScreen({ go }) {
       const data = await response.json();
 
       if (data.accessToken) {
-        // Сохраните токен в localStorage
+        // Сохранение токена в localStorage
         localStorage.setItem("token", data.accessToken);
         go("main");  // Переход на главный экран
       } else {
@@ -108,13 +111,10 @@ function RegistrationScreen({ go }) {
         </div>
 
         <div className="registration-form">
-          {/* Форма */}
+          {/* Фамилия */}
           <div
-            className={`input-with-icon ${
-              errors.lastName && touched.lastName ? "error" : ""
-            }`}
+            className={`input-with-icon ${errors.lastName && touched.lastName ? "error" : ""}`}
           >
-            <img src="/icons/profile.svg" alt="" />
             <input
               placeholder="ФАМИЛИЯ"
               value={form.lastName}
@@ -122,16 +122,12 @@ function RegistrationScreen({ go }) {
               onBlur={() => handleBlur("lastName")}
             />
           </div>
-          {errors.lastName && touched.lastName && (
-            <div className="input-error">{errors.lastName}</div>
-          )}
+          {errors.lastName && touched.lastName && <div className="input-error">{errors.lastName}</div>}
 
+          {/* Имя */}
           <div
-            className={`input-with-icon ${
-              errors.firstName && touched.firstName ? "error" : ""
-            }`}
+            className={`input-with-icon ${errors.firstName && touched.firstName ? "error" : ""}`}
           >
-            <img src="/icons/profile.svg" alt="" />
             <input
               placeholder="ИМЯ"
               value={form.firstName}
@@ -139,16 +135,12 @@ function RegistrationScreen({ go }) {
               onBlur={() => handleBlur("firstName")}
             />
           </div>
-          {errors.firstName && touched.firstName && (
-            <div className="input-error">{errors.firstName}</div>
-          )}
+          {errors.firstName && touched.firstName && <div className="input-error">{errors.firstName}</div>}
 
+          {/* Email */}
           <div
-            className={`input-with-icon ${
-              errors.email && touched.email ? "error" : ""
-            }`}
+            className={`input-with-icon ${errors.email && touched.email ? "error" : ""}`}
           >
-            <img src="/icons/mail.svg" alt="Email" />
             <input
               type="email"
               placeholder="E-MAIL"
@@ -157,16 +149,12 @@ function RegistrationScreen({ go }) {
               onBlur={() => handleBlur("email")}
             />
           </div>
-          {errors.email && touched.email && (
-            <div className="input-error">{errors.email}</div>
-          )}
+          {errors.email && touched.email && <div className="input-error">{errors.email}</div>}
 
+          {/* Пароль */}
           <div
-            className={`input-with-icon ${
-              errors.password && touched.password ? "error" : ""
-            }`}
+            className={`input-with-icon ${errors.password && touched.password ? "error" : ""}`}
           >
-            <img src="/icons/lock.svg" alt="Password" />
             <input
               type={showPassword ? "text" : "password"}
               placeholder="ПАРОЛЬ"
@@ -174,7 +162,6 @@ function RegistrationScreen({ go }) {
               onChange={(e) => handleChange("password", e.target.value)}
               onBlur={() => handleBlur("password")}
             />
-
             <button
               type="button"
               className={`eye-btn ${showPassword ? "active" : ""}`}
@@ -183,9 +170,7 @@ function RegistrationScreen({ go }) {
               <img src="/icons/eye.svg" alt="Показать пароль" />
             </button>
           </div>
-          {errors.password && touched.password && (
-            <div className="input-error">{errors.password}</div>
-          )}
+          {errors.password && touched.password && <div className="input-error">{errors.password}</div>}
         </div>
 
         {/* Кнопка отправки формы */}

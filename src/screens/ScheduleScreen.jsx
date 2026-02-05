@@ -1,29 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../components/Header/Header";
 import ScheduleCard from "../components/ScheduleCard/ScheduleCard";
 import "./ScheduleScreen.css";
 
 function ScheduleScreen({ go }) {
-  const [lessons, setLessons] = useState([
-    {
-      id: 1,
-      date: "12 НОЯБРЯ",
-      time: "18:00",
-      title: "СБОРКА ДРОНА",
-      description: "Практическое занятие по сборке и настройке дрона",
-      free_places: 8,
-      user_status: "available",
-    },
-    {
-      id: 2,
-      date: "14 ДЕКАБРЯ",
-      time: "17:30",
-      title: "ПРОГРАММИРОВАНИЕ РОБОТА",
-      description: "Основы логики и управления",
-      free_places: 0,
-      user_status: "full",
-    },
-  ]);
+  const [lessons, setLessons] = useState([]);
+  const [error, setError] = useState("");
+
+  // Получение данных с бэкенда для расписания
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/schedule`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Использование токена из localStorage
+          },
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setLessons(data);  // Устанавливаем полученные данные в состояние
+        } else {
+          setError(data.error || "Не удалось загрузить расписание");
+        }
+      } catch (err) {
+        setError("Ошибка при подключении к серверу.");
+      }
+    };
+
+    fetchSchedule(); // Вызываем функцию получения данных
+  }, []);
 
   const handleToggleEnroll = (id) => {
     setLessons((prev) =>
@@ -56,20 +63,15 @@ function ScheduleScreen({ go }) {
       <Header title="ГЛАВНАЯ / РАСПИСАНИЕ /" />
 
       <div className="schedule-content">
-        <div className="section-path">
-          / ГЛАВНАЯ / РАСПИСАНИЕ
-        </div>
+        <div className="section-path">/ ГЛАВНАЯ / РАСПИСАНИЕ</div>
 
-        <div className="screen-title">
-          ГРАФИК ИСПЫТАНИЙ
-        </div>
+        <div className="screen-title">ГРАФИК ИСПЫТАНИЙ</div>
 
+        {error && <div className="error">{error}</div>}  {/* Отображение ошибок */}
 
         {lessons.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-title">
-              ТУТ ПУСТО :(
-            </div>
+            <div className="empty-title">ТУТ ПУСТО :(</div>
             <div className="empty-text">
               В БЛИЖАЙШЕЕ ВРЕМЯ ЗДЕСЬ ПОЯВЯТСЯ НОВЫЕ ИСПЫТАНИЯ
             </div>
@@ -84,10 +86,7 @@ function ScheduleScreen({ go }) {
           ))
         )}
 
-        <button
-          className="back-button"
-          onClick={() => go("main")}
-        >
+        <button className="back-button" onClick={() => go("main")}>
           <img src="/icons/back.svg" alt="Назад" />
         </button>
       </div>
